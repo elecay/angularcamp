@@ -2,15 +2,24 @@
 
     'use strict';
 
-
     angular.module('angularcampApp')
-        .service('mainservice', ['$http', '$q', MainService]);
+        .factory('mainservice', ['$http', '$q', mainservice]);
 
-    function MainService($http, $q) {
+    function mainservice($http, $q) {
 
         var ms = this;
 
-        ms.getEvents = function() {
+        var service = {
+            getEvents   : getEvents,
+            ready       : ready
+        };
+
+        return service;
+        
+
+        /* Implementation */
+
+        function getEvents() {
             var deferred = $q.defer();
             $http.get('/api/events').success(function(events) {
                 deferred.resolve(events);    
@@ -18,7 +27,7 @@
             return deferred.promise;
         };
 
-        ms.ready = function(promises) {
+        function ready(promises) {
             var deferred = $q.defer();
             $q.all(promises).then(function() {
                 deferred.resolve();
