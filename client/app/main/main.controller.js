@@ -1,27 +1,29 @@
-'use strict';
+(function() {
 
-angular.module('angularcampApp')
-  .controller('MainCtrl', function ($scope, $http, socket) {
-    $scope.awesomeThings = [];
+    'use strict';
 
-    $http.get('/api/things').success(function(awesomeThings) {
-      $scope.awesomeThings = awesomeThings;
-      socket.syncUpdates('thing', $scope.awesomeThings);
-    });
+    angular.module('angularcampApp')
+        .controller('MainCtrl', ['mainservice', MainCtrl]);
 
-    $scope.addThing = function() {
-      if($scope.newThing === '') {
-        return;
-      }
-      $http.post('/api/things', { name: $scope.newThing });
-      $scope.newThing = '';
-    };
+    function MainCtrl(mainservice) {
 
-    $scope.deleteThing = function(thing) {
-      $http.delete('/api/things/' + thing._id);
-    };
+        var mc = this;
+        mc.events = [];
 
-    $scope.$on('$destroy', function () {
-      socket.unsyncUpdates('thing');
-    });
-  });
+        loadData();
+
+        function loadData() {
+            var promises = [getEvents()];
+            return mainservice.ready(promises).then(function() {
+                console.log('events data ready!');
+            });
+        }
+        
+        function getEvents() {
+            mainservice.getEvents().then(function(events) {
+                mc.events = events;
+            });
+        }
+    }
+
+})();
